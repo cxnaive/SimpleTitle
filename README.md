@@ -65,9 +65,20 @@
 
 | 变量 | 说明 |
 |------|------|
-| `%playertitle_current%` | 当前使用的称号（带边框和颜色） |
-| `%playertitle_current_id%` | 当前称号ID |
+| `%playertitle_current%` | 当前称号（完整格式，支持动态） |
+| `%playertitle_use%` | 同上 |
+| `%playertitle_raw%` | 当前称号原始文本（无边框） |
+| `%playertitle_content%` | 当前称号内容（支持动态） |
+| `%playertitle_bracket%` | 当前边框样式（左+右） |
+| `%playertitle_bracket_left%` | 当前左边框 |
+| `%playertitle_bracket_right%` | 当前右边框 |
+| `%playertitle_prefix%` | 当前称号前缀 |
+| `%playertitle_suffix%` | 当前称号后缀 |
 | `%playertitle_count%` | 拥有的称号数量 |
+| `%playertitle_amount%` | 同上 |
+| `%playertitle_has_title%` | 是否拥有称号（yes/no） |
+| `%playertitle_is_dynamic%` | 当前称号是否为动态（yes/no） |
+| `%playertitle_has_<ID>%` | 是否拥有指定称号（yes/no） |
 
 ## 配置文件
 
