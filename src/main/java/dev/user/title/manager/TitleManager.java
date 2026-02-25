@@ -171,9 +171,11 @@ public class TitleManager {
     }
 
     private void giveTitleToPlayer(UUID playerUuid, String titleId, TitleData titleData, Consumer<PurchaseResult> callback) {
-        repository.addPlayerTitle(playerUuid, titleId, titleData, success -> {
+        // 创建副本，避免多个玩家共享同一个 TitleData 对象
+        TitleData copy = titleData.copy();
+        repository.addPlayerTitle(playerUuid, titleId, copy, success -> {
             if (success) {
-                cacheManager.addPlayerTitle(playerUuid, titleId, titleData);
+                cacheManager.addPlayerTitle(playerUuid, titleId, copy);
                 callback.accept(PurchaseResult.SUCCESS);
             } else {
                 callback.accept(PurchaseResult.DATABASE_ERROR);

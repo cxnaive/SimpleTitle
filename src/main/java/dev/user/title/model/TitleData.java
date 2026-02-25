@@ -344,6 +344,26 @@ public class TitleData {
         return permission != null && !permission.isEmpty();
     }
 
+    /**
+     * 创建当前对象的深拷贝
+     */
+    public TitleData copy() {
+        TitleData copy = new TitleData();
+        copy.contents = this.contents != null ? new ArrayList<>(this.contents) : new ArrayList<>();
+        copy.bracketLeft = this.bracketLeft;
+        copy.bracketRight = this.bracketRight;
+        copy.prefix = this.prefix;
+        copy.suffix = this.suffix;
+        copy.type = this.type;
+        copy.displayName = this.displayName;
+        copy.priceMoney = this.priceMoney;
+        copy.pricePoints = this.pricePoints;
+        copy.permission = this.permission;
+        copy.slot = this.slot;
+        copy.category = this.category;
+        return copy;
+    }
+
     @Override
     public String toString() {
         return "TitleData{" +
