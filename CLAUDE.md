@@ -9,7 +9,7 @@
 #### 核心功能
 - [x] 称号系统（预设 + 自定义）
 - [x] 动态称号支持（多内容循环显示）
-- [x] PlaceholderAPI 扩展（`%playertitle_current%` 等）
+- [x] PlaceholderAPI 扩展（`%simpletitle_current%` 等）
 - [x] 数据库支持（H2 本地 / MySQL 跨服）
 - [x] 异步数据库队列（非阻塞操作）
 - [x] 玩家缓存系统（懒加载 + 触发加载）
@@ -33,14 +33,34 @@
 - [x] 动态称号创建（多内容循环）
 - [x] 会话管理（多步骤输入、超时）
 - [x] 敏感词过滤
+- [x] 聊天事件取消（防止输入泄露）
 
 #### 数据导入
 - [x] CSV 导入命令（`/title import plt <文件名>`）
 - [x] PLT 格式支持
 
-#### 数据库事务
+#### 数据库与并发
 - [x] setCurrentTitle 事务支持
 - [x] 边框操作回调确认
+- [x] TitleData 深拷贝（避免对象引用共享）
+
+### 已修复问题
+
+1. **聊天消息泄露** ✅
+   - 自定义称号输入时消息会被其他玩家看到
+   - 修复：添加 `event.viewers().clear()` 和监听旧版 `AsyncPlayerChatEvent`
+
+2. **预设称号边框污染** ✅
+   - 修改购买的预设称号边框会影响其他玩家
+   - 修复：购买时创建 `TitleData.copy()` 副本
+
+3. **边框商城缺少导航** ✅
+   - 没有返回按钮和装饰边框
+   - 修复：重构为继承 `AbstractGUI`
+
+4. **价格显示问题** ✅
+   - `{price}` 占位符未替换
+   - 修复：传递正确的 price 参数
 
 ### 待处理/已知问题
 
@@ -51,7 +71,7 @@
 
 ## 配置文件
 
-- `config.yml` - 主配置（数据库、自定义称号、动态称号、空格设置）
+- `config.yml` - 主配置（数据库、自定义称号、动态称号、边距设置）
 - `titles.yml` - 预设称号配置
 - `brackets.yml` - 预设边框配置
 - `messages.yml` - 消息配置
@@ -65,10 +85,8 @@
 | `/title clear` | 清除当前称号 |
 | `/title list` | 查看拥有称号 |
 | `/title shop` | 打开称号商店 |
-| `/title buy <ID>` | 购买预设称号 |
 | `/title custom` | 创建自定义称号 |
 | `/title brackets` | 打开边框商城 |
-| `/title bracket <称号> <边框>` | 修改称号边框 |
 | `/title import plt <文件>` | 导入 PLT CSV 数据 |
 | `/title reload` | 重载配置 |
 | `/title give <玩家> <ID>` | 给予玩家称号 |
@@ -111,7 +129,7 @@ src/main/java/dev/user/title/
 │   ├── BracketShopGUI.java     # 边框商城
 │   └── BracketSelectGUI.java   # 边框选择
 ├── listener/
-│   ├── PlayerListener.java     # 玩家事件
+│   ├── PlayerListener.java     # 玩家事件（聊天、加入/退出）
 │   └── GUIListener.java        # GUI 事件
 ├── manager/
 │   ├── TitleManager.java       # 称号业务逻辑
@@ -121,7 +139,7 @@ src/main/java/dev/user/title/
 │   ├── DynamicTitleManager.java # 动态称号
 │   └── CustomTitleSessionManager.java # 自定义称号会话
 ├── model/
-│   ├── TitleData.java          # 称号数据模型
+│   ├── TitleData.java          # 称号数据模型（含 copy() 方法）
 │   ├── BracketData.java        # 边框数据模型
 │   └── TitleType.java          # 称号类型枚举
 ├── placeholder/
@@ -137,3 +155,17 @@ src/main/java/dev/user/title/
 2. **异步数据库**：所有数据库操作通过 `DatabaseQueue` 异步执行
 3. **缓存懒加载**：查询时触发异步加载，避免阻塞主线程
 4. **颜色代码**：使用 `&` 格式，通过 `LegacyComponentSerializer.legacyAmpersand()` 解析
+5. **对象拷贝**：购买预设称号时必须创建副本，避免引用共享
+6. **聊天事件**：使用 `LOWEST` 优先级 + `viewers().clear()` 确保事件取消生效
+
+## Git 提交历史
+
+```
+7c2f58c docs: 添加 README 和 MIT License
+26ebb19 fix: 修复称号商店购买失败时价格未正确显示的问题
+dfceec0 fix: 边框商城添加返回按钮和装饰边框
+d848647 fix: 修复预设称号对象引用共享导致边框修改互相影响的问题
+ad87b54 chore: 添加 *.csv 到 .gitignore
+551b879 fix: 修复自定义称号输入时聊天消息泄露问题
+054ff58 feat: SimpleTitle 称号插件初始版本
+```
