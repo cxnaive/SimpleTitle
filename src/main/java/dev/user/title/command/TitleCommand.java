@@ -388,8 +388,7 @@ public class TitleCommand implements CommandExecutor, TabCompleter {
         }
 
         // 打开边框商城
-        BracketShopGUI bracketShopGUI = new BracketShopGUI(plugin, player);
-        bracketShopGUI.open();
+        BracketShopGUI.open(plugin, player, 0);
         return true;
     }
 

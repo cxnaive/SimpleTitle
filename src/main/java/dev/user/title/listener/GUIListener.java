@@ -2,7 +2,6 @@ package dev.user.title.listener;
 
 import dev.user.title.gui.AbstractGUI;
 import dev.user.title.gui.BracketSelectGUI;
-import dev.user.title.gui.BracketShopGUI;
 import dev.user.title.gui.GUIManager;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -31,14 +30,6 @@ public class GUIListener implements Listener {
             if (gui.hasAction(slot)) {
                 gui.handleClick(slot, player);
             }
-            return;
-        }
-
-        // 处理 BracketShopGUI
-        BracketShopGUI bracketShopGUI = BracketShopGUI.getHolder(event.getClickedInventory());
-        if (bracketShopGUI != null) {
-            event.setCancelled(true);
-            bracketShopGUI.handleClick(event.getRawSlot());
             return;
         }
 

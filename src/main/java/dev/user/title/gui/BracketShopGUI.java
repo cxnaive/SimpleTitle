@@ -4,12 +4,8 @@ import dev.user.title.SimpleTitlePlugin;
 import dev.user.title.manager.BracketManager;
 import dev.user.title.model.BracketData;
 import dev.user.title.util.MessageUtil;
-import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -19,49 +15,77 @@ import java.util.List;
 /**
  * 边框商城 GUI
  */
-public class BracketShopGUI implements InventoryHolder {
+public class BracketShopGUI extends AbstractGUI {
 
-    private static final int SIZE = 54;
-    private static final int PREV_PAGE_SLOT = 45;
-    private static final int NEXT_PAGE_SLOT = 53;
+    private static final int GUI_SIZE = 54;
+    private static final int ITEMS_PER_PAGE = 28;
 
     private final SimpleTitlePlugin plugin;
-    private final Player player;
-    private final Inventory inventory;
-    private int currentPage = 0;
+    private final int page;
+    private final List<BracketData> brackets;
 
-    private List<BracketData> brackets;
-
-    public BracketShopGUI(SimpleTitlePlugin plugin, Player player) {
+    public BracketShopGUI(SimpleTitlePlugin plugin, Player player, int page) {
+        super(player, "&b边框商城", GUI_SIZE);
         this.plugin = plugin;
-        this.player = player;
-        this.inventory = Bukkit.createInventory(this, SIZE,
-                Component.text("边框商城"));
+        this.page = page;
         this.brackets = new ArrayList<>(plugin.getBracketManager().getPresetBrackets().values());
-        loadPage();
     }
 
-    private void loadPage() {
-        inventory.clear();
+    @Override
+    protected void initialize() {
+        // 填充边框
+        fillBorder(Material.LIGHT_BLUE_STAINED_GLASS_PANE);
 
-        int startIndex = currentPage * 45;
-        int endIndex = Math.min(startIndex + 45, brackets.size());
+        // 计算分页
+        int startIndex = page * ITEMS_PER_PAGE;
+        int endIndex = Math.min(startIndex + ITEMS_PER_PAGE, brackets.size());
+
+        // 填充边框物品
+        int slot = 10;
 
         for (int i = startIndex; i < endIndex; i++) {
             BracketData bracket = brackets.get(i);
-            int slot = i - startIndex;
-            inventory.setItem(slot, createBracketItem(bracket));
+
+            // 跳过边框槽位
+            while (slot % 9 == 0 || slot % 9 == 8) {
+                slot++;
+            }
+
+            // 如果超过最后一行，停止
+            if (slot >= 45) break;
+
+            ItemStack item = createBracketItem(bracket);
+            setItem(slot, item, p -> handleBracketClick(bracket));
+
+            slot++;
         }
 
-        // 上一页按钮
-        if (currentPage > 0) {
-            inventory.setItem(PREV_PAGE_SLOT, createNavItem(Material.ARROW, "&e上一页"));
+        // 底部导航栏
+        // 上一页按钮（槽位48）
+        if (page > 0) {
+            ItemStack prevBtn = createItem(Material.SPECTRAL_ARROW, "§e上一页", "§7第 " + page + " 页");
+            setItem(48, prevBtn, p -> {
+                BracketShopGUI gui = new BracketShopGUI(plugin, p, page - 1);
+                gui.open();
+            });
         }
 
-        // 下一页按钮
-        if ((currentPage + 1) * 45 < brackets.size()) {
-            inventory.setItem(NEXT_PAGE_SLOT, createNavItem(Material.ARROW, "&e下一页"));
+        // 返回按钮（槽位49）
+        ItemStack backBtn = createItem(Material.ARROW, "§e返回我的称号", "§7点击返回称号列表");
+        setItem(49, backBtn, p -> TitleMainGUI.open(plugin, p, 0));
+
+        // 下一页按钮（槽位51）
+        int totalPages = (int) Math.ceil((double) brackets.size() / ITEMS_PER_PAGE);
+        if (page < totalPages - 1) {
+            ItemStack nextBtn = createItem(Material.SPECTRAL_ARROW, "§e下一页", "§7第 " + (page + 2) + " 页");
+            setItem(51, nextBtn, p -> {
+                BracketShopGUI gui = new BracketShopGUI(plugin, p, page + 1);
+                gui.open();
+            });
         }
+
+        // 关闭按钮（槽位53）
+        addCloseButton(53);
     }
 
     private ItemStack createBracketItem(BracketData bracket) {
@@ -79,9 +103,6 @@ public class BracketShopGUI implements InventoryHolder {
             material = Material.GRAY_DYE;
         }
 
-        ItemStack item = new ItemStack(material);
-        ItemMeta meta = item.getItemMeta();
-
         List<String> lore = new ArrayList<>();
         lore.add("&7预览: &f" + bracket.getPreview());
         lore.add("");
@@ -93,6 +114,7 @@ public class BracketShopGUI implements InventoryHolder {
             lore.add("&a默认边框（所有玩家拥有）");
         } else if (owned) {
             lore.add("&a已拥有");
+            lore.add("&7在称号详情处修改边框");
         } else {
             // 价格
             if (bracket.requiresMoney() || bracket.requiresPoints()) {
@@ -126,41 +148,7 @@ public class BracketShopGUI implements InventoryHolder {
             }
         }
 
-        meta.displayName(AbstractGUI.toComponent("&6" + bracket.getDisplayName()));
-        meta.lore(lore.stream().map(AbstractGUI::toComponent).toList());
-        item.setItemMeta(meta);
-
-        return item;
-    }
-
-    private ItemStack createNavItem(Material material, String name) {
-        ItemStack item = new ItemStack(material);
-        ItemMeta meta = item.getItemMeta();
-        meta.displayName(AbstractGUI.toComponent(name));
-        item.setItemMeta(meta);
-        return item;
-    }
-
-    public void handleClick(int slot) {
-        if (slot == PREV_PAGE_SLOT && currentPage > 0) {
-            currentPage--;
-            loadPage();
-            player.openInventory(inventory);
-            return;
-        }
-
-        if (slot == NEXT_PAGE_SLOT && (currentPage + 1) * 45 < brackets.size()) {
-            currentPage++;
-            loadPage();
-            player.openInventory(inventory);
-            return;
-        }
-
-        int index = currentPage * 45 + slot;
-        if (index >= 0 && index < brackets.size()) {
-            BracketData bracket = brackets.get(index);
-            handleBracketClick(bracket);
-        }
+        return createItem(material, "&6" + bracket.getDisplayName(), lore);
     }
 
     private void handleBracketClick(BracketData bracket) {
@@ -169,6 +157,7 @@ public class BracketShopGUI implements InventoryHolder {
         // 已拥有
         if (bracketManager.hasBracket(player.getUniqueId(), bracket.getBracketId())) {
             MessageUtil.send(player, "&c你已经拥有这个边框了！");
+            MessageUtil.send(player, "&7在称号详情处修改边框");
             return;
         }
 
@@ -191,8 +180,10 @@ public class BracketShopGUI implements InventoryHolder {
             case SUCCESS:
                 MessageUtil.send(player, "&a成功购买边框: " + bracket.getDisplayName());
                 MessageUtil.send(player, "&7预览: " + bracket.getPreview());
-                loadPage();
-                player.openInventory(inventory);
+                MessageUtil.send(player, "&7在称号详情处修改边框");
+                // 刷新当前页
+                BracketShopGUI gui = new BracketShopGUI(plugin, player, page);
+                gui.open();
                 break;
             case ALREADY_OWNED:
                 MessageUtil.send(player, "&c你已经拥有这个边框了！");
@@ -215,19 +206,11 @@ public class BracketShopGUI implements InventoryHolder {
         }
     }
 
-    public void open() {
-        player.openInventory(inventory);
-    }
-
-    @Override
-    public Inventory getInventory() {
-        return inventory;
-    }
-
-    public static BracketShopGUI getHolder(Inventory inventory) {
-        if (inventory.getHolder() instanceof BracketShopGUI) {
-            return (BracketShopGUI) inventory.getHolder();
-        }
-        return null;
+    /**
+     * 静态打开方法
+     */
+    public static void open(SimpleTitlePlugin plugin, Player player, int page) {
+        BracketShopGUI gui = new BracketShopGUI(plugin, player, page);
+        gui.open();
     }
 }

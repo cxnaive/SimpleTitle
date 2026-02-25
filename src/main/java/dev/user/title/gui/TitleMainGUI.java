@@ -81,8 +81,7 @@ public class TitleMainGUI extends AbstractGUI {
                 "§7购买称号边框",
                 "§7在称号详情页修改边框");
         setItem(48, bracketBtn, p -> {
-            BracketShopGUI bracketShopGUI = new BracketShopGUI(plugin, p);
-            bracketShopGUI.open();
+            BracketShopGUI.open(plugin, p, 0);
         });
 
         // 称号商店按钮（槽位49）
