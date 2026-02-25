@@ -13,6 +13,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
@@ -61,6 +62,7 @@ public class PlayerListener implements Listener {
         }
 
         event.setCancelled(true);
+        event.viewers().clear(); // 清空观众列表，防止消息显示给其他玩家
 
         ConfigManager configManager = plugin.getConfigManager();
         TitleManager titleManager = plugin.getTitleManager();
@@ -92,6 +94,24 @@ public class PlayerListener implements Listener {
                 handleConfirm(player, message, session, sessionManager, configManager, titleManager);
                 break;
         }
+    }
+
+    /**
+     * 监听旧版聊天事件（兼容性）
+     */
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
+    public void onLegacyPlayerChat(AsyncPlayerChatEvent event) {
+        Player player = event.getPlayer();
+        CustomTitleSessionManager sessionManager = plugin.getCustomTitleSessionManager();
+
+        CustomTitleSessionManager.Session session = sessionManager.getSession(player.getUniqueId());
+        if (session == null) {
+            return;
+        }
+
+        event.setCancelled(true);
+        event.getRecipients().clear(); // 清空接收者列表
+        // 消息处理逻辑在 AsyncChatEvent 中处理
     }
 
     /**
