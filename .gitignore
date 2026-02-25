@@ -25,6 +25,9 @@ out/
 # Logs
 *.log
 
+# Data files
+*.csv
+
 # OS
 .DS_Store
 Thumbs.db
