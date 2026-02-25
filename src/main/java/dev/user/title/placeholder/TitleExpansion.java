@@ -14,7 +14,7 @@ import java.util.UUID;
 
 /**
  * PlaceholderAPI 扩展
- * 提供 %playertitle_*% 占位符
+ * 提供 %playertitle_current% %playertitle_current_id% %playertitle_count% 占位符
  */
 public class TitleExpansion extends PlaceholderExpansion {
 

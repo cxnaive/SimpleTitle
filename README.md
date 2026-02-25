@@ -65,9 +65,9 @@
 
 | 变量 | 说明 |
 |------|------|
-| `%simpletitle_current%` | 当前使用的称号（带边框和颜色） |
-| `%simpletitle_current_id%` | 当前称号ID |
-| `%simpletitle_count%` | 拥有的称号数量 |
+| `%playertitle_current%` | 当前使用的称号（带边框和颜色） |
+| `%playertitle_current_id%` | 当前称号ID |
+| `%playertitle_count%` | 拥有的称号数量 |
 
 ## 配置文件
 
