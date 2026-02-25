@@ -1,0 +1,97 @@
+# SimpleTitle 预设称号配置
+# 所有预设称号都在这里配置
+
+titles:
+  # 称号ID（唯一标识）
+  newbie:
+    # 显示名称（商店显示）
+    display-name: "萌新"
+    # 称号内容
+    content: "&b萌新"
+    # 金币价格（需要 XConomy）
+    price-money: 10000
+    # 点券价格（需要 PlayerPoints）
+    price-points: 0
+    # 所需权限（可选，不填则无权限限制）
+    permission: null
+    # GUI 位置（可选）
+    slot: 0
+    # 分类（可选）
+    category: "coin"
+
+  pro:
+    display-name: "PRO"
+    content: "&e&lPRO"
+    price-money: 10000
+    price-points: 0
+    permission: null
+    slot: 1
+    category: "coin"
+
+  rich:
+    display-name: "爆发户"
+    content: "&e爆发户"
+    price-money: 10000
+    price-points: 0
+    permission: null
+    slot: 2
+    category: "coin"
+
+  master:
+    display-name: "大师"
+    content: "&d&l大师"
+    price-money: 10000
+    price-points: 0
+    slot: 3
+    category: "coin"
+
+  elder:
+    display-name: "老登"
+    content: "&d老登"
+    price-money: 10000
+    price-points: 0
+    slot: 4
+    category: "coin"
+
+  love:
+    display-name: "心心"
+    content: "&4❤"
+    price-money: 10000
+    price-points: 0
+    slot: 5
+    category: "coin"
+
+  # 免费称号示例
+  newbie:
+    display-name: "萌新"
+    content: "萌新"
+    bracket-left: "["
+    bracket-right: "]"
+    prefix: "&a"
+    suffix: "&r"
+    price-money: 0
+    price-points: 0
+    permission: null
+    slot: 6
+    category: "free"
+
+  # 动态称号示例 - 彩虹效果
+  # 始终显示 "rainbow"，但颜色循环变化
+  # 切换间隔由 config.yml 中的 dynamic-title.switch-interval 全局配置
+  rainbow:
+    display-name: "彩虹"
+    contents:
+      - "&crainbow"
+      - "&6rainbow"
+      - "&erainbow"
+      - "&arainbow"
+      - "&brainbow"
+      - "&9rainbow"
+      - "&drainbow"
+    prefix: ""
+    suffix: ""
+    price-money: 0
+    price-points: 200
+    permission: simpletitle.special
+    slot: 7
+    category: "special"

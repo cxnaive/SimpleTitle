@@ -1,0 +1,55 @@
+name: SimpleTitle
+version: ${version}
+main: dev.user.title.SimpleTitlePlugin
+api-version: '1.21'
+folia-supported: true
+depend: [PlaceholderAPI]
+softdepend: [XConomy, PlayerPoints]
+
+commands:
+  title:
+    description: 称号系统主命令
+    permission: simpletitle.use
+    usage: /title [set|clear|list|shop|custom|bracket|brackets|reload|give]
+
+permissions:
+  simpletitle.use:
+    default: true
+    description: 使用基础命令
+  simpletitle.gui:
+    default: true
+    description: 打开GUI界面
+  simpletitle.set:
+    default: true
+    description: 设置称号
+  simpletitle.clear:
+    default: true
+    description: 清除称号
+  simpletitle.list:
+    default: true
+    description: 查看称号列表
+  simpletitle.shop:
+    default: true
+    description: 打开称号商店
+  simpletitle.custom:
+    default: true
+    description: 自定义称号
+  simpletitle.bracket:
+    default: true
+    description: 修改称号边框
+  simpletitle.admin:
+    default: op
+    description: 管理员权限
+    children:
+      simpletitle.reload: true
+      simpletitle.give: true
+      simpletitle.import: true
+  simpletitle.reload:
+    default: op
+    description: 重载配置
+  simpletitle.give:
+    default: op
+    description: 给予玩家称号
+  simpletitle.import:
+    default: op
+    description: 导入数据

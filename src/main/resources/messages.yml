@@ -1,0 +1,82 @@
+# SimpleTitle 消息配置
+
+# 前缀
+prefix: "&6[称号系统] &r"
+
+# 通用消息
+no-permission: "&c你没有权限执行此操作！"
+player-only: "&c此命令只能由玩家执行！"
+player-not-found: "&c玩家不存在或不在线！"
+unknown-command: "&c未知命令！"
+reload-success: "&a配置已重载！"
+
+# 称号相关
+title-set: "&a成功设置称号: {title}"
+title-cleared: "&a已清除当前称号！"
+title-not-found: "&c称号不存在！"
+title-already-owned: "&c你已经拥有这个称号！"
+no-titles: "&c你还没有任何称号！"
+
+# 购买相关
+buy-success: "&a成功购买称号: {title}"
+buy-failed: "&c购买失败！"
+already-owned: "&c你已经拥有这个称号！"
+not-enough-money: "&c金币不足！需要: {price}"
+not-enough-points: "&c点券不足！需要: {price}"
+economy-not-available: "&c经济系统不可用！"
+points-not-available: "&c点券系统不可用！"
+
+# 使用/取消使用
+use-success: "&a成功使用称号: {title}"
+use-failed: "&c使用称号失败！"
+unuse-success: "&a已取消使用称号: {title}"
+unuse-failed: "&c取消使用称号失败！"
+
+# 删除称号
+delete-success: "&a已删除称号: {title}"
+delete-failed: "&c删除称号失败！"
+
+# 自定义称号相关
+custom-disabled: "&c自定义称号功能已禁用！"
+custom-too-long: "&c称号内容过长！最大长度: {max}"
+custom-name-too-long: "&c名称过长！最大长度: {max}"
+custom-name-duplicate: "&c你已经有一个叫 \"{name}\" 的称号了！"
+custom-forbidden: "&c称号包含敏感词！"
+custom-success: "&a成功创建自定义称号: {title}"
+custom-cancelled: "&c已取消创建自定义称号"
+custom-timeout: "&c创建自定义称号超时，请重新开始！"
+custom-input-content: "&e请在聊天框输入你的称号内容（{timeout}秒内）："
+custom-input-name: "&e请输入称号名称（用于管理识别）："
+custom-input-cancel: "&7输入 \"取消\" 可取消操作"
+
+# 管理员命令
+give-success: "&a成功给予玩家 {player} 称号: {title}"
+give-failed: "&c给予称号失败！"
+
+# 帮助信息
+help-header: "&e========== 称号系统帮助 =========="
+help-title: "&e/title &7- 打开称号选择界面"
+help-set: "&e/title set <ID> &7- 设置称号"
+help-clear: "&e/title clear &7- 清除当前称号"
+help-list: "&e/title list &7- 查看拥有的称号"
+help-shop: "&e/title shop &7- 打开称号商店"
+help-buy: "&e/title buy <ID> &7- 购买称号"
+help-custom: "&e/title custom <内容> &7- 自定义称号"
+help-brackets: "&e/title brackets &7- 打开边框商城"
+help-bracket: "&e/title bracket <称号> <边框> &7- 修改称号边框"
+help-reload: "&e/title reload &7- 重载配置"
+help-give: "&e/title give <玩家> <ID> &7- 给予玩家称号"
+help-import: "&e/title import plt <文件> &7- 导入PLT数据"
+help-footer: "&e=================================="
+
+# 列表格式
+list-header: "&e========== 你的称号 ({count}) =========="
+list-item: "&7- {title} &8({id})"
+list-item-current: "&7- {title} &8({id}) &7[使用中]"
+list-footer: "&e=================================="
+
+# GUI标题
+gui:
+  main-title: "&6我的称号"
+  shop-title: "&b称号商店"
+  detail-title: "&e称号详情"

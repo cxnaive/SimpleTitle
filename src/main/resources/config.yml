@@ -1,0 +1,62 @@
+# SimpleTitle 配置文件
+
+# 数据库配置
+database:
+  # 数据库类型: h2（本地）或 mysql（跨服）
+  type: h2
+
+  # H2 数据库配置（本地模式，不支持跨服）
+  h2:
+    filename: titles
+
+  # MySQL 数据库配置（支持跨服）
+  mysql:
+    host: localhost
+    port: 3306
+    database: simpletitle
+    username: root
+    password: password
+    pool-size: 5
+
+# 默认边框设置
+default-bracket:
+  left: '『'
+  right: '』'
+
+# 称号两端空格设置
+title-padding:
+  # 左边空格（默认无）
+  left: ''
+  # 右边空格（默认一个空格）
+  right: ' '
+
+# 自定义称号设置
+custom-title:
+  # 是否启用自定义称号功能
+  enabled: true
+  # 称号内容最大长度
+  max-length: 128
+  # 称号名称最大长度（用于生成称号ID：玩家名_名称）
+  max-name-length: 32
+  # 静态称号价格
+  price-money: 0.0
+  price-points: 5000
+  # 动态称号价格
+  dynamic-price-money: 0.0
+  dynamic-price-points: 9800
+  # 会话超时时间（秒）
+  session-timeout: 30
+  # 敏感词过滤
+  forbidden-words:
+    - "admin"
+    - "管理员"
+    - "服主"
+    - "GM"
+    - "OP"
+
+# 动态称号设置
+dynamic-title:
+  # 默认切换间隔（tick，20tick = 1秒）
+  switch-interval: 2
+  # 最大内容数量
+  max-contents: 10

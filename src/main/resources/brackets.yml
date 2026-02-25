@@ -1,0 +1,108 @@
+# SimpleTitle 预设边框配置
+# 所有预设边框都在这里配置
+
+brackets:
+  # 默认边框（所有玩家自动拥有）
+  default:
+    display-name: "默认"
+    bracket-left: "『"
+    bracket-right: "』"
+    price-money: 0
+    price-points: 0
+    permission: null
+    is-default: true
+    category: "basic"
+
+  # 中括号系列
+  round:
+    display-name: "括号"
+    bracket-left: "["
+    bracket-right: "]"
+    price-money: 100
+    price-points: 0
+    permission: null
+    is-default: false
+    category: "basic"
+
+  angle:
+    display-name: "尖括号"
+    bracket-left: "<"
+    bracket-right: ">"
+    price-money: 500
+    price-points: 0
+    permission: null
+    is-default: false
+    category: "basic"
+
+  # 中文括号系列
+  chinese:
+    display-name: "中文括号"
+    bracket-left: "【"
+    bracket-right: "】"
+    price-money: 1000
+    price-points: 0
+    permission: null
+    is-default: false
+    category: "fancy"
+
+  double-angle:
+    display-name: "书名号"
+    bracket-left: "《"
+    bracket-right: "》"
+    price-money: 1000
+    price-points: 0
+    permission: null
+    is-default: false
+    category: "fancy"
+
+  # 特殊符号系列
+  star:
+    display-name: "星星"
+    bracket-left: "&e★"
+    bracket-right: "&e★"
+    price-money: 0
+    price-points: 50
+    permission: null
+    is-default: false
+    category: "special"
+
+  diamond:
+    display-name: "钻石"
+    bracket-left: "&b◆"
+    bracket-right: "&b◆"
+    price-money: 0
+    price-points: 80
+    permission: null
+    is-default: false
+    category: "special"
+
+  heart:
+    display-name: "爱心"
+    bracket-left: "&c❤"
+    bracket-right: "&c❤"
+    price-money: 0
+    price-points: 100
+    permission: null
+    is-default: false
+    category: "special"
+
+  flower:
+    display-name: "花朵"
+    bracket-left: "&d❀"
+    bracket-right: "&d❀"
+    price-money: 0
+    price-points: 120
+    permission: null
+    is-default: false
+    category: "special"
+
+  # 空边框（无任何边框）
+  none:
+    display-name: "空边框"
+    bracket-left: ""
+    bracket-right: ""
+    price-money: 0
+    price-points: 200
+    permission: null
+    is-default: false
+    category: "special"
