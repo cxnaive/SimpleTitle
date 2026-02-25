@@ -181,10 +181,12 @@ public class TitleShopGUI extends AbstractGUI {
                     MessageUtil.send(player, plugin.getConfigManager().getMessage("already-owned"));
                     break;
                 case NOT_ENOUGH_MONEY:
-                    MessageUtil.send(player, plugin.getConfigManager().getMessage("not-enough-money"));
+                    MessageUtil.send(player, plugin.getConfigManager().getMessage("not-enough-money",
+                            "price", String.format("%.0f", titleData.getPriceMoney())));
                     break;
                 case NOT_ENOUGH_POINTS:
-                    MessageUtil.send(player, plugin.getConfigManager().getMessage("not-enough-points"));
+                    MessageUtil.send(player, plugin.getConfigManager().getMessage("not-enough-points",
+                            "price", String.valueOf(titleData.getPricePoints())));
                     break;
                 case ECONOMY_NOT_AVAILABLE:
                     MessageUtil.send(player, plugin.getConfigManager().getMessage("economy-not-available"));
