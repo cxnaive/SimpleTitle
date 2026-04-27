@@ -78,6 +78,8 @@ public class TitleCommand implements CommandExecutor, TabCompleter {
                 return handleReload(sender);
             case "give":
                 return handleGive(sender, args);
+            case "admin":
+                return handleAdmin(sender, args);
             case "help":
                 sendHelp(sender);
                 return true;
@@ -434,6 +436,33 @@ public class TitleCommand implements CommandExecutor, TabCompleter {
         return true;
     }
 
+    private boolean handleAdmin(CommandSender sender, String[] args) {
+        if (!(sender instanceof Player)) {
+            MessageUtil.send(sender, configManager.getMessage("player-only"));
+            return true;
+        }
+
+        Player player = (Player) sender;
+        if (!player.hasPermission("simpletitle.admin")) {
+            MessageUtil.send(player, configManager.getMessage("no-permission"));
+            return true;
+        }
+
+        if (args.length < 2) {
+            MessageUtil.send(player, "&c用法: /title admin <玩家名>");
+            return true;
+        }
+
+        Player target = Bukkit.getPlayer(args[1]);
+        if (target == null) {
+            MessageUtil.send(player, configManager.getMessage("player-not-found"));
+            return true;
+        }
+
+        TitleMainGUI.open(plugin, player, target.getUniqueId(), 0);
+        return true;
+    }
+
     private String formatPrice(double money, int points) {
         StringBuilder sb = new StringBuilder();
         if (money > 0) {
@@ -545,6 +574,9 @@ public class TitleCommand implements CommandExecutor, TabCompleter {
         if (args.length == 1) {
             // 子命令补全
             List<String> subCommands = new ArrayList<>(Arrays.asList("set", "clear", "list", "shop", "buy", "custom", "bracket", "brackets", "help"));
+            if (sender.hasPermission("simpletitle.admin")) {
+                subCommands.add("admin");
+            }
             if (sender.hasPermission("simpletitle.reload")) {
                 subCommands.add("reload");
             }
@@ -582,6 +614,13 @@ public class TitleCommand implements CommandExecutor, TabCompleter {
                 // 补全预设称号ID
                 String prefix = args[1].toLowerCase();
                 completions.addAll(titleManager.getPresetTitles().keySet().stream()
+                        .filter(s -> s.toLowerCase().startsWith(prefix))
+                        .collect(Collectors.toList()));
+            } else if (subCommand.equals("admin")) {
+                // 补全在线玩家名
+                String prefix = args[1].toLowerCase();
+                completions.addAll(Bukkit.getOnlinePlayers().stream()
+                        .map(Player::getName)
                         .filter(s -> s.toLowerCase().startsWith(prefix))
                         .collect(Collectors.toList()));
             } else if (subCommand.equals("give")) {

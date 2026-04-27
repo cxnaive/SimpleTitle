@@ -53,3 +53,6 @@ permissions:
   simpletitle.import:
     default: op
     description: 导入数据
+  simpletitle.admin:
+    default: op
+    description: 管理员权限（管理其他玩家的称号）

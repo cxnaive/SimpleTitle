@@ -3,7 +3,9 @@ package dev.user.title.gui;
 import dev.user.title.SimpleTitlePlugin;
 import dev.user.title.model.TitleData;
 import dev.user.title.util.MessageUtil;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -11,6 +13,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * 称号主菜单GUI
@@ -18,46 +21,56 @@ import java.util.Map;
  */
 public class TitleMainGUI extends AbstractGUI {
 
-    private static final int GUI_SIZE = 54; // 6行
-    private static final int ITEMS_PER_PAGE = 28; // 每页28个物品（中间区域）
+    private static final int GUI_SIZE = 54;
+    private static final int ITEMS_PER_PAGE = 28;
 
     private final SimpleTitlePlugin plugin;
+    private final UUID ownerUuid;
     private final int page;
     private final Map<String, TitleData> playerTitles;
     private final String currentTitleId;
     private final List<String> titleIds;
 
-    public TitleMainGUI(SimpleTitlePlugin plugin, Player player, int page) {
-        super(player, plugin.getConfigManager().getMessage("gui.main-title", "default", "&6我的称号"), GUI_SIZE);
+    public TitleMainGUI(SimpleTitlePlugin plugin, Player viewer, UUID ownerUuid, int page) {
+        super(viewer, resolveTitle(plugin, viewer, ownerUuid), GUI_SIZE);
         this.plugin = plugin;
+        this.ownerUuid = ownerUuid;
         this.page = page;
-        this.playerTitles = plugin.getTitleManager().getPlayerTitles(player.getUniqueId());
-        this.currentTitleId = plugin.getTitleCacheManager().getCurrentTitleId(player.getUniqueId());
+        this.playerTitles = plugin.getTitleManager().getPlayerTitles(ownerUuid);
+        this.currentTitleId = plugin.getTitleCacheManager().getCurrentTitleId(ownerUuid);
         this.titleIds = new ArrayList<>(playerTitles.keySet());
+    }
+
+    public TitleMainGUI(SimpleTitlePlugin plugin, Player player, int page) {
+        this(plugin, player, player.getUniqueId(), page);
+    }
+
+    private static String resolveTitle(SimpleTitlePlugin plugin, Player viewer, UUID ownerUuid) {
+        if (ownerUuid.equals(viewer.getUniqueId())) {
+            return plugin.getConfigManager().getMessage("gui.main-title", "default", "&6我的称号");
+        }
+        OfflinePlayer target = Bukkit.getOfflinePlayer(ownerUuid);
+        String name = target.getName() != null ? target.getName() : ownerUuid.toString().substring(0, 8);
+        return "&6管理 " + name + " 的称号";
     }
 
     @Override
     protected void initialize() {
-        // 填充边框
         fillBorder(Material.GRAY_STAINED_GLASS_PANE);
 
-        // 计算分页
         int startIndex = page * ITEMS_PER_PAGE;
         int endIndex = Math.min(startIndex + ITEMS_PER_PAGE, titleIds.size());
 
-        // 填充称号物品（从槽位10开始，跳过第一行和边框）
         int slot = 10;
 
         for (int i = startIndex; i < endIndex; i++) {
             String titleId = titleIds.get(i);
             TitleData titleData = playerTitles.get(titleId);
 
-            // 跳过边框槽位
             while (slot % 9 == 0 || slot % 9 == 8) {
                 slot++;
             }
 
-            // 如果超过最后一行，停止
             if (slot >= 45) break;
 
             ItemStack item = createTitleItem(titleId, titleData);
@@ -66,56 +79,48 @@ public class TitleMainGUI extends AbstractGUI {
             slot++;
         }
 
-        // 底部导航栏
-        // 上一页按钮（槽位46）
+        boolean isAdmin = !ownerUuid.equals(player.getUniqueId());
+
+        // 上一页
         if (page > 0) {
             ItemStack prevBtn = createItem(Material.SPECTRAL_ARROW, "§e上一页", "§7第 " + (page) + " 页");
-            setItem(46, prevBtn, p -> {
-                TitleMainGUI gui = new TitleMainGUI(plugin, player, page - 1);
-                gui.open();
-            });
+            setItem(46, prevBtn, p -> new TitleMainGUI(plugin, player, ownerUuid, page - 1).open());
         }
 
-        // 边框商城按钮（槽位48）
-        ItemStack bracketBtn = createItem(Material.ITEM_FRAME, "§d边框商城",
-                "§7购买称号边框",
-                "§7在称号详情页修改边框");
-        setItem(48, bracketBtn, p -> {
-            BracketShopGUI.open(plugin, p, 0);
-        });
+        if (isAdmin) {
+            // 管理员模式：给予称号按钮
+            ItemStack giveBtn = createItem(Material.EMERALD, "§a给予称号",
+                    "§7免费给予预设称号给该玩家");
+            setItem(49, giveBtn, p -> TitleShopGUI.openAdmin(plugin, p, ownerUuid, 0));
+        } else {
+            // 玩家模式：边框商城、称号商店、自定义称号
+            ItemStack bracketBtn = createItem(Material.ITEM_FRAME, "§d边框商城",
+                    "§7购买称号边框",
+                    "§7在称号详情页修改边框");
+            setItem(48, bracketBtn, p -> BracketShopGUI.open(plugin, p, 0));
 
-        // 称号商店按钮（槽位49）
-        ItemStack shopBtn = createItem(Material.EMERALD, "§a称号商店", "§7点击浏览可购买的称号");
-        setItem(49, shopBtn, p -> {
-            TitleShopGUI.open(plugin, player, 0);
-        });
+            ItemStack shopBtn = createItem(Material.EMERALD, "§a称号商店", "§7点击浏览可购买的称号");
+            setItem(49, shopBtn, p -> TitleShopGUI.open(plugin, player, 0));
 
-        // 自定义称号按钮（槽位50）
-        if (plugin.getConfigManager().isCustomTitleEnabled()) {
-            ItemStack customBtn = createItem(Material.WRITABLE_BOOK, "§b自定义称号", "§7创建属于你的独特称号");
-            setItem(50, customBtn, p -> {
-                player.closeInventory();
-                startCustomTitleSession(p);
-            });
+            if (plugin.getConfigManager().isCustomTitleEnabled()) {
+                ItemStack customBtn = createItem(Material.WRITABLE_BOOK, "§b自定义称号", "§7创建属于你的独特称号");
+                setItem(50, customBtn, p -> {
+                    player.closeInventory();
+                    startCustomTitleSession(p);
+                });
+            }
         }
 
-        // 下一页按钮（槽位52）
+        // 下一页
         int totalPages = (int) Math.ceil((double) titleIds.size() / ITEMS_PER_PAGE);
         if (page < totalPages - 1) {
             ItemStack nextBtn = createItem(Material.SPECTRAL_ARROW, "§e下一页", "§7第 " + (page + 2) + " 页");
-            setItem(52, nextBtn, p -> {
-                TitleMainGUI gui = new TitleMainGUI(plugin, player, page + 1);
-                gui.open();
-            });
+            setItem(52, nextBtn, p -> new TitleMainGUI(plugin, player, ownerUuid, page + 1).open());
         }
 
-        // 关闭按钮（槽位53）
         addCloseButton(53);
     }
 
-    /**
-     * 创建称号物品
-     */
     private ItemStack createTitleItem(String titleId, TitleData titleData) {
         boolean isCurrentUse = titleId.equals(currentTitleId);
         Material material = isCurrentUse ? Material.ENCHANTED_GOLDEN_APPLE : Material.NAME_TAG;
@@ -123,7 +128,6 @@ public class TitleMainGUI extends AbstractGUI {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
-            // 显示名称为格式化后的称号（使用Component解析颜色）
             meta.displayName(toComponent(titleData.getFormatted()));
 
             List<String> lore = new ArrayList<>();
@@ -144,20 +148,13 @@ public class TitleMainGUI extends AbstractGUI {
         return item;
     }
 
-    /**
-     * 打开称号详情GUI
-     */
     private void openDetailGUI(String titleId, TitleData titleData) {
-        TitleDetailGUI.open(plugin, player, titleId, titleData, page);
+        TitleDetailGUI.open(plugin, player, ownerUuid, titleId, titleData, page);
     }
 
-    /**
-     * 开始自定义称号会话
-     */
     private void startCustomTitleSession(Player player) {
         plugin.getCustomTitleSessionManager().startSession(player);
 
-        // 显示选择类型的提示
         MessageUtil.send(player, "&e========== 创建自定义称号 ==========");
         MessageUtil.send(player, "&7请选择称号类型：");
         MessageUtil.send(player, "&e1. 静态称号 &7- 固定内容");
@@ -188,17 +185,17 @@ public class TitleMainGUI extends AbstractGUI {
         return sb.toString();
     }
 
-    /**
-     * 静态打开方法（异步加载数据）
-     */
     public static void open(SimpleTitlePlugin plugin, Player player) {
-        open(plugin, player, 0);
+        open(plugin, player, player.getUniqueId(), 0);
     }
 
     public static void open(SimpleTitlePlugin plugin, Player player, int page) {
-        // 数据已在缓存中，直接在主线程打开
-        player.getScheduler().execute(plugin, () -> {
-            TitleMainGUI gui = new TitleMainGUI(plugin, player, page);
+        open(plugin, player, player.getUniqueId(), page);
+    }
+
+    public static void open(SimpleTitlePlugin plugin, Player viewer, UUID ownerUuid, int page) {
+        viewer.getScheduler().execute(plugin, () -> {
+            TitleMainGUI gui = new TitleMainGUI(plugin, viewer, ownerUuid, page);
             gui.open();
         }, () -> {}, 0L);
     }

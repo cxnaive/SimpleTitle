@@ -17,6 +17,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * 边框选择 GUI - 用于修改称号的边框
@@ -27,7 +28,8 @@ public class BracketSelectGUI implements InventoryHolder {
     private static final int BACK_SLOT = 49;
 
     private final SimpleTitlePlugin plugin;
-    private final Player player;
+    private final Player viewer;
+    private final UUID ownerUuid;
     private final String titleId;
     private TitleData titleData;
     private final int returnPage;
@@ -36,16 +38,21 @@ public class BracketSelectGUI implements InventoryHolder {
 
     private List<BracketData> ownedBrackets;
 
-    public BracketSelectGUI(SimpleTitlePlugin plugin, Player player, String titleId, TitleData titleData, int returnPage) {
+    public BracketSelectGUI(SimpleTitlePlugin plugin, Player viewer, UUID ownerUuid, String titleId, TitleData titleData, int returnPage) {
         this.plugin = plugin;
-        this.player = player;
+        this.viewer = viewer;
+        this.ownerUuid = ownerUuid;
         this.titleId = titleId;
         this.titleData = titleData;
         this.returnPage = returnPage;
         this.inventory = Bukkit.createInventory(this, SIZE,
                 Component.text("选择边框 - " + titleId));
-        this.ownedBrackets = plugin.getBracketManager().getPlayerBrackets(player.getUniqueId());
+        this.ownedBrackets = plugin.getBracketManager().getPlayerBrackets(ownerUuid);
         loadPage();
+    }
+
+    public BracketSelectGUI(SimpleTitlePlugin plugin, Player player, String titleId, TitleData titleData, int returnPage) {
+        this(plugin, player, player.getUniqueId(), titleId, titleData, returnPage);
     }
 
     private void loadPage() {
@@ -67,17 +74,14 @@ public class BracketSelectGUI implements InventoryHolder {
             inventory.setItem(slot, createBracketItem(bracket, isCurrent));
         }
 
-        // 上一页按钮
         if (currentPage > 0) {
             inventory.setItem(45, createNavItem(Material.ARROW, "&e上一页"));
         }
 
-        // 下一页按钮
         if ((currentPage + 1) * 45 < ownedBrackets.size()) {
             inventory.setItem(53, createNavItem(Material.ARROW, "&e下一页"));
         }
 
-        // 返回按钮
         inventory.setItem(BACK_SLOT, createNavItem(Material.BARRIER, "&c返回"));
     }
 
@@ -116,25 +120,22 @@ public class BracketSelectGUI implements InventoryHolder {
     }
 
     public void handleClick(int slot) {
-        // 上一页
         if (slot == 45 && currentPage > 0) {
             currentPage--;
             loadPage();
-            player.openInventory(inventory);
+            viewer.openInventory(inventory);
             return;
         }
 
-        // 下一页
         if (slot == 53 && (currentPage + 1) * 45 < ownedBrackets.size()) {
             currentPage++;
             loadPage();
-            player.openInventory(inventory);
+            viewer.openInventory(inventory);
             return;
         }
 
-        // 返回
         if (slot == BACK_SLOT) {
-            TitleDetailGUI.open(plugin, player, titleId, titleData, returnPage);
+            TitleDetailGUI.open(plugin, viewer, ownerUuid, titleId, titleData, returnPage);
             return;
         }
 
@@ -149,34 +150,30 @@ public class BracketSelectGUI implements InventoryHolder {
         String currentLeft = titleData.getBracketLeft();
         String currentRight = titleData.getBracketRight();
 
-        // 已经是当前边框
         if (bracket.getBracketLeft().equals(currentLeft) && bracket.getBracketRight().equals(currentRight)) {
-            MessageUtil.send(player, "&c这已经是当前使用的边框了！");
+            MessageUtil.send(viewer, "&c这已经是当前使用的边框了！");
             return;
         }
 
-        // 更新边框
         titleData.setBracketLeft(bracket.getBracketLeft());
         titleData.setBracketRight(bracket.getBracketRight());
 
-        // 保存到数据库
         TitleManager titleManager = plugin.getTitleManager();
-        titleManager.updatePlayerTitleData(player.getUniqueId(), titleId, titleData, success -> {
+        titleManager.updatePlayerTitleData(ownerUuid, titleId, titleData, success -> {
             if (success) {
-                MessageUtil.send(player, "&a边框已更新为: " + bracket.getDisplayName());
-                MessageUtil.send(player, "&7预览: " + bracket.getPreview());
+                MessageUtil.send(viewer, "&a边框已更新为: " + bracket.getDisplayName());
+                MessageUtil.send(viewer, "&7预览: " + bracket.getPreview());
 
-                // 刷新 GUI
                 loadPage();
-                player.openInventory(inventory);
+                viewer.openInventory(inventory);
             } else {
-                MessageUtil.send(player, "&c边框更新失败！");
+                MessageUtil.send(viewer, "&c边框更新失败！");
             }
         });
     }
 
     public void open() {
-        player.openInventory(inventory);
+        viewer.openInventory(inventory);
     }
 
     @Override
