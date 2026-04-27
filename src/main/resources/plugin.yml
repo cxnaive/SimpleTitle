@@ -3,6 +3,13 @@ version: ${version}
 main: dev.user.title.SimpleTitlePlugin
 api-version: '1.21'
 folia-supported: true
+
+libraries:
+  - com.zaxxer:HikariCP:6.2.1
+  - com.h2database:h2:2.3.232
+  - com.mysql:mysql-connector-j:9.2.0
+  - com.google.code.gson:gson:2.12.1
+
 depend: [PlaceholderAPI]
 softdepend: [XConomy, PlayerPoints]
 
@@ -39,7 +46,7 @@ permissions:
     description: 修改称号边框
   simpletitle.admin:
     default: op
-    description: 管理员权限
+    description: 管理员权限（管理其他玩家的称号）
     children:
       simpletitle.reload: true
       simpletitle.give: true
@@ -53,6 +60,3 @@ permissions:
   simpletitle.import:
     default: op
     description: 导入数据
-  simpletitle.admin:
-    default: op
-    description: 管理员权限（管理其他玩家的称号）
